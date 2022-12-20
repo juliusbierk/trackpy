@@ -375,14 +375,18 @@ class Linker:
                 neighbor_strategy = 'KDTree'
             else:
                 neighbor_strategy = 'BTree'
-        elif neighbor_strategy not in ['KDTree', 'BTree']:
+        elif isinstance(neighbor_strategy, str) and neighbor_strategy not in ['KDTree', 'BTree']:
             raise ValueError("neighbor_strategy must be 'KDTree' or 'BTree'")
-        elif neighbor_strategy != 'BTree' and dist_func is not None:
+        elif neighbor_strategy == 'KDTree' and dist_func is not None:
             raise ValueError("For custom distance functions please use "
-                             "the 'BTree' neighbor_strategy.")
+                             "the 'BTree' or custom neighbor_strategy.")
 
-        self.hash_cls = dict(KDTree=HashKDTree,
-                             BTree=HashBTree)[neighbor_strategy]
+        if isinstance(neighbor_strategy, str):
+            self.hash_cls = dict(KDTree=HashKDTree,
+                                 BTree=HashBTree)[neighbor_strategy]
+        else:
+            self.hash_cls = neighbor_strategy
+
         self.dist_func = dist_func  # a custom distance function
         self.to_eucl = to_eucl      # to euclidean coordinates
 
